@@ -619,8 +619,59 @@ User::create([
     'password' => bcrypt(''),
 ]); 
 ```
+---
 
+## Step 12: Start Development Server 
+
+To run the Laravel CoreUI Admin Panel correctly, you must start BOTH backend and frontend servers.
+
+### 12.1 Start Laravel Backend Server
+
+Open Terminal / CMD and run:
+
+```bash
+php artisan serve
+```
+
+This starts Laravel routes, controllers, authentication, and database logic.
+
+After this, Laravel will run on:
+
+```bash
+http://127.0.0.1:8000
+```
+
+### 12.2 Start Frontend (CoreUI + Bootstrap Assets)
+
+Open another terminal in the same project folder and run:
+
+```bash
+npm run dev
+```
+
+This compiles:
+
+- CoreUI CSS
+
+- Bootstrap
+
+- JavaScript
+
+- Sidebar & Admin UI styles
+
+- Without this, Admin Panel design will NOT appear correctly.
+
+
+### 12.3 Open Admin Panel in Browser
+
+```
+http://127.0.0.1:8000/admin/login
+```
+
+Login using Admin credentials created via tinker.
 You can use Hash also in Create User
+
+---
 
 ## Project Folder Structure 
 
