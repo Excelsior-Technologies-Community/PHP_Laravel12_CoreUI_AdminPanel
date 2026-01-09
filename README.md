@@ -55,7 +55,7 @@ It demonstrates how to implement a simple admin authentication system, a dashboa
 ---
 
 
-## 🛠 Requirements
+##  Requirements
 
 | Tool | Version |
 |----|----|
