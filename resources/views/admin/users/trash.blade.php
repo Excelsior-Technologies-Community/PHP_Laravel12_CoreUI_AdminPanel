@@ -1,115 +1,97 @@
-<!DOCTYPE html>
-<html>
+@extends('admin.layouts.app')
 
-<head>
-    <title>Trash Users</title>
-
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- CoreUI -->
-    <link href="https://cdn.jsdelivr.net/npm/@coreui/coreui@4.2.6/dist/css/coreui.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .sidebar {
-            width: 250px;
-            position: fixed;
-            height: 100%;
-        }
-
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-
-        .card {
-            border-radius: 15px;
-        }
-
-        .table th,
-        .table td {
-            vertical-align: middle;
-        }
-    </style>
-</head>
-
-<body class="c-app">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar bg-dark text-white p-3">
-        <h4 class="text-center mb-4">Admin Panel</h4>
-
-        <ul class="nav flex-column">
-            <li class="nav-item mb-2">
-                <a class="nav-link text-white" href="{{ route('admin.dashboard') }}">🏠 Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white bg-secondary rounded" href="{{ route('admin.users.index') }}">👤 Users</a>
-            </li>
-        </ul>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-
-        <!-- HEADER -->
-        <div class="d-flex justify-content-end mb-3">
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button class="btn btn-danger btn-sm">Logout</button>
-            </form>
+@section('content')
+<div class="container-fluid">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 font-weight-bold text-danger">
+                <i class="cil-trash mr-2"></i> Trash Bin (Deleted Users)
+            </h5>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-primary btn-sm">
+                <i class="cil-arrow-left"></i> Back to Users
+            </a>
         </div>
-
-        <!-- CARD -->
-        <div class="card shadow p-4">
-
-            <div class="text-start mb-3">
-                <a href="{{ route('admin.users.index') }}" class="btn btn-primary">← Back to Users</a>
-            </div>
-
-            <!-- SUCCESS MESSAGE -->
+        
+        <div class="card-body">
+            
             @if(session('success'))
-                <div class="alert alert-success text-center mb-3">
+                <div class="alert alert-success border-0 shadow-sm mb-4">
                     {{ session('success') }}
                 </div>
             @endif
 
-            <!-- TABLE -->
             <div class="table-responsive">
-                <table class="table table-bordered table-hover text-center align-middle">
-                    <thead class="table-danger">
+                <table class="table table-hover align-middle border-light">
+                    <thead class="table-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Restore</th>
+                            <th class="border-0">ID</th>
+                            <th class="border-0">Avatar</th>
+                            <th class="border-0">User Details</th>
+                            <th class="border-0 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($users as $user)
                             <tr>
-                                <td>{{ $user->id }}</td>
-                                <td><strong>{{ $user->name }}</strong></td>
-                                <td>{{ $user->email }}</td>
+                                <td class="text-muted">#{{ $user->id }}</td>
                                 <td>
-                                    <a href="{{ route('admin.users.restore', $user->id) }}" class="btn btn-success btn-sm">
-                                        Restore
-                                    </a>
+                                    @if($user->avatar)
+                                        <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle shadow-sm" width="40" height="40" style="object-fit: cover; opacity: 0.7;">
+                                    @else
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=666&color=fff" class="rounded-circle shadow-sm" width="40" style="opacity: 0.7;">
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold text-muted" style="text-decoration: line-through;">{{ $user->name }}</div>
+                                    <div class="small text-muted">{{ $user->email }}</div>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-success btn-sm px-3 shadow-sm" onclick="confirmRestore('{{ route('admin.users.restore', $user->id) }}')">
+                                        <i class="cil-history"></i> Restore User
+                                    </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4">No Trash Users Found</td>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <div class="mb-3">
+                                        <i class="cil-trash" style="font-size: 3rem; opacity: 0.2;"></i>
+                                    </div>
+                                    <h5 class="font-weight-light">Your trash bin is empty!</h5>
+                                    <p class="small">Deleted users will appear here for restoration.</p>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-</body>
 
-</html>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover { background-color: #fff9f9; }
+    .font-weight-bold { font-weight: 600; }
+    .btn-success { border-radius: 8px; }
+</style>
+
+<script>
+    function confirmRestore(url) {
+        Swal.fire({
+            title: 'Restore User?',
+            text: "This user will be active again in your list.",
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#2eb85c',
+            cancelButtonColor: '#a4b0be',
+            confirmButtonText: 'Yes, restore it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        })
+    }
+</script>
+@endsection
